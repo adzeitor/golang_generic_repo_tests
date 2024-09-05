@@ -12,7 +12,7 @@ import (
 type Repo[T any, ID any] interface {
 	Create(context.Context, *T) error
 	Update(context.Context, *T) error
-	Load(context.Context, ID) (T, error)
+	Load(context.Context, ID) (*T, error)
 }
 
 func GenericTest[T any, ID any](repo Repo[T, ID], t *testing.T) {
@@ -39,7 +39,7 @@ func GenericTest[T any, ID any](repo Repo[T, ID], t *testing.T) {
 			assert.NoError(t, err)
 
 			// assert
-			assert.Equal(t, aggregate, got)
+			assert.Equal(t, *got, aggregate)
 		})
 
 		t.Run("Create/Update/Load", func(t *testing.T) {
@@ -59,7 +59,7 @@ func GenericTest[T any, ID any](repo Repo[T, ID], t *testing.T) {
 			// assert
 			got, err := repo.Load(ctx, id)
 			assert.NoError(t, err)
-			assert.Equal(t, updated, got)
+			assert.Equal(t, *got, updated)
 		})
 	})
 }

@@ -44,8 +44,8 @@ func (r *TrainsRepo) Update(_ context.Context, d *Train) error {
 	return nil
 }
 
-func (r *TrainsRepo) Load(_ context.Context, id int) (Train, error) {
-	return r.Trains[id], nil
+func (r *TrainsRepo) Load(_ context.Context, id int) (*Train, error) {
+	return &r.Trains[id], nil
 }
 
 func TestGeneric(t *testing.T) {
@@ -65,7 +65,7 @@ func (r *RepoAdapter) Update(ctx context.Context, t *Train) error {
 	return r.Repo.Update(ctx, t)
 }
 
-func (r *RepoAdapter) Load(ctx context.Context, id int) (Train, error) {
+func (r *RepoAdapter) Load(ctx context.Context, id int) (*Train, error) {
 	return r.Repo.Load(ctx, id)
 }
 
