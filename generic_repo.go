@@ -32,7 +32,8 @@ func GenericTest[T any, ID any](repo Repo[T, ID], t *testing.T) {
 			// arrange
 			ctx := context.Background()
 			aggregate := testdata.Make[T](t)
-			repo.Create(ctx, &aggregate)
+			err := repo.Create(ctx, &aggregate)
+			assert.NoError(t, err)
 
 			got, err := repo.Load(ctx, getID(aggregate))
 			assert.NoError(t, err)
@@ -45,13 +46,14 @@ func GenericTest[T any, ID any](repo Repo[T, ID], t *testing.T) {
 			// arrange
 			ctx := context.Background()
 			aggregate := testdata.Make[T](t)
-			repo.Create(ctx, &aggregate)
+			err := repo.Create(ctx, &aggregate)
+			assert.NoError(t, err)
 
 			// act
 			updated := testdata.Make[T](t)
 			id := getID(aggregate)
 			setID(&updated, id)
-			err := repo.Update(ctx, &updated)
+			err = repo.Update(ctx, &updated)
 			assert.NoError(t, err)
 
 			// assert
