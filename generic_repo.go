@@ -17,7 +17,11 @@ type Repo[T any, ID any] interface {
 
 func GenericTest[T any, ID any](repo Repo[T, ID], t *testing.T) {
 	getID := func(aggregate T) ID {
-		return reflect.ValueOf(aggregate).FieldByName("ID").Interface().(ID)
+		field := reflect.ValueOf(aggregate).FieldByName("ID")
+		if field == (reflect.Value{}) {
+			t.Fatal("For generic tests your model/aggregate should have ID property")
+		}
+		return field.Interface().(ID)
 	}
 	setID := func(aggregate *T, id ID) {
 		reflect.ValueOf(aggregate).Elem().FieldByName("ID").Set(reflect.ValueOf(id))

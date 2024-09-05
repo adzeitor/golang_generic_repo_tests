@@ -19,7 +19,8 @@ So this kind of tests is here.
 
 ## How to add
 
-We need adapter of your repository interface to generic repository of this package.
+- We need adapter of your repository interface to generic repository of this package.
+- Also your Model/Aggregate should have property ID, because Load method needs it.
 
 So in your test file:
 
