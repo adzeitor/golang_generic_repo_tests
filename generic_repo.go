@@ -16,6 +16,10 @@ type Repo[T any, ID any] interface {
 }
 
 func GenericTest[T any, ID any](repo Repo[T, ID], t *testing.T) {
+	GenericTestWithConfig(repo, testdata.DefaultConfig, t)
+}
+
+func GenericTestWithConfig[T any, ID any](repo Repo[T, ID], cfg *testdata.Config, t *testing.T) {
 	getID := func(aggregate T) ID {
 		field := reflect.ValueOf(aggregate).FieldByName("ID")
 		if field == (reflect.Value{}) {
@@ -31,7 +35,7 @@ func GenericTest[T any, ID any](repo Repo[T, ID], t *testing.T) {
 		t.Run("Create/Load", func(t *testing.T) {
 			// arrange
 			ctx := context.Background()
-			aggregate := testdata.Make[T](t)
+			aggregate := testdata.MakeWith[T](t, cfg)
 			err := repo.Create(ctx, &aggregate)
 			assert.NoError(t, err)
 
@@ -45,12 +49,12 @@ func GenericTest[T any, ID any](repo Repo[T, ID], t *testing.T) {
 		t.Run("Create/Update/Load", func(t *testing.T) {
 			// arrange
 			ctx := context.Background()
-			aggregate := testdata.Make[T](t)
+			aggregate := testdata.MakeWith[T](t, cfg)
 			err := repo.Create(ctx, &aggregate)
 			assert.NoError(t, err)
 
 			// act
-			updated := testdata.Make[T](t)
+			updated := testdata.MakeWith[T](t, cfg)
 			id := getID(aggregate)
 			setID(&updated, id)
 			err = repo.Update(ctx, &updated)

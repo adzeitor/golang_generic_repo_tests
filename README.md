@@ -69,3 +69,27 @@ func TestGeneric(t *testing.T) {
 ## Copy/Paste
 
 Another way just copy/paste this code to your repo and change method names to your convention.
+
+
+## How to change testdata config?
+
+
+```go
+import "github.com/kyuff/testdata"
+
+// ...
+
+cfg := testdata.NewConfig(
+	testdata.WithGenerator(func(rand *rand.Rand) []HistoryItem {
+		// for example history should have
+		// more than one element
+		historySize := rand.IntN(10) + 1
+		history := []HistoryItem{}
+		for i := 0; i < historySize; i++ {
+			history = append(history, testdata.Make[HistoryItem](t))
+		}
+		return history
+	}),
+)
+GenericTestWithConfig(repo, cfg, t)
+```

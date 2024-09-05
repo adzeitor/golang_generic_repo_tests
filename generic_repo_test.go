@@ -2,7 +2,12 @@ package genericrepotests
 
 import (
 	"context"
+	"errors"
+	"math/rand/v2"
+	"strings"
 	"testing"
+
+	"github.com/kyuff/testdata"
 )
 
 type ResourceSlot struct {
@@ -73,4 +78,45 @@ func (r *RepoAdapter) Load(ctx context.Context, id int) (*Train, error) {
 func TestGenericWithAdapter(t *testing.T) {
 	withAdapter := &RepoAdapter{Repo: TrainsRepo{}}
 	GenericTest(withAdapter, t)
+}
+
+type Item struct {
+	ID   string
+	Name string
+}
+type MyRepo struct {
+	items map[string]Item
+}
+
+func (r *MyRepo) Create(_ context.Context, item *Item) error {
+	if !strings.HasPrefix(item.Name, "+") {
+		return errors.New("name should start with +")
+	}
+	r.items[item.ID] = *item
+	return nil
+}
+
+func (r *MyRepo) Update(_ context.Context, item *Item) error {
+	r.items[item.ID] = *item
+	return nil
+}
+
+func (r *MyRepo) Load(_ context.Context, id string) (*Item, error) {
+	item := r.items[id]
+	return &item, nil
+}
+
+func TestGenericWithConfig(t *testing.T) {
+	repo := &MyRepo{
+		items: map[string]Item{},
+	}
+	cfg := testdata.NewConfig(
+		testdata.WithGenerator(func(rand *rand.Rand) Item {
+			return Item{
+				ID:   testdata.Make[string](t),
+				Name: "+" + testdata.Make[string](t),
+			}
+		}),
+	)
+	GenericTestWithConfig(repo, cfg, t)
 }
