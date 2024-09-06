@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"math/rand/v2"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -110,13 +111,29 @@ func TestGenericWithConfig(t *testing.T) {
 	repo := &MyRepo{
 		items: map[string]Item{},
 	}
-	cfg := testdata.NewConfig(
-		testdata.WithGenerator(func(rand *rand.Rand) Item {
-			return Item{
-				ID:   testdata.Make[string](t),
-				Name: "+" + testdata.Make[string](t),
-			}
-		}),
-	)
-	GenericTestWithConfig(repo, cfg, t)
+
+	t.Run("with make data", func(t *testing.T) {
+		cfg := testdata.NewConfig(
+			testdata.WithGenerator(func(rand *rand.Rand) Item {
+				return Item{
+					ID:   testdata.Make[string](t),
+					Name: "+" + testdata.Make[string](t),
+				}
+			}),
+		)
+		GenericTestWithConfig(repo, Config[Item]{
+			MakeData: func(t *testing.T) Item {
+				return testdata.MakeWith[Item](t, cfg)
+			},
+		}, t)
+	})
+	t.Run("with make data", func(t *testing.T) {
+		GenericTestWithConfig(&TrainsRepo{}, Config[Train]{
+			Compare: func(t *testing.T, a Train, b Train) {
+				if !reflect.DeepEqual(a, b) {
+					t.Fatal("not equal", a, b)
+				}
+			},
+		}, t)
+	})
 }
